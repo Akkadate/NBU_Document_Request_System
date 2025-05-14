@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="request_doc_page_title">ขอเอกสาร</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body id="request-doc-page">
+    <header>
+        <img src="assets/images/nbu_logo.png" alt="NBU Logo" class="logo">
+        <h1 data-translate="system_name">ระบบขอเอกสารออนไลน์</h1>
+        <p data-translate="university_name">มหาวิทยาลัยนอร์ทกรุงเทพ</p>
+        <div class="language-switcher"></div>
+    </header>
+
+    <div class="container">
+        <div id="user-info" class="user-info"></div>
+        <h2 data-translate="request_doc_page_title">ขอเอกสาร</h2>
+        <form id="requestForm">
+            <div class="form-group">
+                <label for="documentType" data-translate="document_type_label">ประเภทเอกสาร</label>
+                <select id="documentType" name="documentType" required>
+                    <option value="" data-translate="select_document_type">เลือกประเภทเอกสาร...</option>
+                    </select>
+            </div>
+
+            <div class="form-group">
+                <label for="quantity" data-translate="quantity_label">จำนวน (ฉบับ)</label>
+                <input type="number" id="quantity" name="quantity" value="1" min="1" required>
+            </div>
+
+            <div class="form-group">
+                <label data-translate="delivery_method_label">วิธีการรับเอกสาร</label>
+                <div>
+                    <input type="radio" id="deliverySelfPickup" name="deliveryMethod" value="self_pickup" checked>
+                    <label for="deliverySelfPickup" data-translate="delivery_self_pickup">รับด้วยตนเอง</label>
+                </div>
+                <div>
+                    <input type="radio" id="deliveryPostal" name="deliveryMethod" value="postal">
+                    <label for="deliveryPostal" data-translate="delivery_postal">รับทางไปรษณีย์</label>
+                </div>
+            </div>
+
+            <div id="selfPickupOptions" class="form-group">
+                <label data-translate="pickup_option_label">ตัวเลือกการรับด้วยตนเอง</label>
+                <div>
+                    <input type="radio" id="pickupNormal" name="pickupType" value="normal" checked>
+                    <label for="pickupNormal" data-translate="pickup_normal" data-price="100">แบบธรรมดา (ฉบับละ 100 บาท)</label>
+                </div>
+                <div>
+                    <input type="radio" id="pickupExpress" name="pickupType" value="express">
+                    <label for="pickupExpress" data-translate="pickup_express" data-price="150">แบบเร่งด่วน (ฉบับละ 150 บาท)</label>
+                </div>
+            </div>
+
+            <div id="postalAddressSection" class="form-group" style="display:none;">
+                <label for="postalAddress" data-translate="postal_address_label">ที่อยู่สำหรับจัดส่ง</label>
+                <textarea id="postalAddress" name="postalAddress" rows="3"></textarea>
+            </div>
+
+            <button type="button" id="calculateCostBtn" class="btn" data-translate="calculate_cost_button">คำนวณค่าบริการ</button>
+
+            <div id="costSummary" class="cost-summary" style="display:none;">
+                <h3 data-translate="total_cost_label">ค่าบริการรวม</h3>
+                <p><span data-translate="document_cost_label">ค่าเอกสาร</span>: <span id="documentCost">0</span> บาท</p>
+                <p><span data-translate="shipping_cost_label">ค่าจัดส่ง</span>: <span id="shippingCost">0</span> บาท</p>
+                <p><strong><span data-translate="total_cost_label">รวมทั้งสิ้น</span>: <span id="totalCost">0</span> บาท</strong></p>
+            </div>
+
+            <button type="submit" class="btn mt-20" data-translate="proceed_to_payment_button" style="display:none;">ดำเนินการชำระเงิน</button>
+        </form>
+        <div id="requestMessage" class="message" style="text-align:center; margin-top:10px;"></div>
+    </div>
+
+    <footer>
+        <p class="text-center">&copy; 2025 <span data-translate="university_name">มหาวิทยาลัยนอร์ทกรุงเทพ</span></p>
+    </footer>
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/request.js"></script>
+</body>
+</html>
