@@ -65,5 +65,6 @@ router.post(
 router.get('/admin/all', authMiddleware, documentController.getAllRequestsAdmin);
 router.put('/admin/:requestId/status', authMiddleware, documentController.updateRequestStatusAdmin);
 
+router.get('/admin/reports/summary', authMiddleware, documentController.getReportSummary);
 
 module.exports = router;
