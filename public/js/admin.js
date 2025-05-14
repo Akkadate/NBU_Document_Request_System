@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function fetchAllRequests() {
         try {
-            const response = await fetch(`${APP_CONFIG.API_BASE_URL}/documents/admin/all`, {
+            const response = await fetch(`${APP_CONFIG.API_BASE_URL}/admin/documents/all`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
             if (!response.ok) {
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function updateRequestStatus(requestId, newStatus) {
         try {
-            const response = await fetch(`${APP_CONFIG.API_BASE_URL}/documents/admin/${requestId}/status`, {
+            const response = await fetch(`${APP_CONFIG.API_BASE_URL}/admin/documents/${requestId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
