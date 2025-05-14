@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Reports</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .report-section { margin-bottom: 30px; padding: 20px; background-color: #f9f9f9; border-radius: 5px; }
+        .report-section h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    </style>
+</head>
+<body id="admin-report-page">
+    <header>
+        <img src="assets/images/nbu_logo.png" alt="NBU Logo" class="logo">
+        <h1 data-translate="admin_report_page_title">หน้ารายงานสรุป (Admin)</h1>
+        <p data-translate="university_name">มหาวิทยาลัยนอร์ทกรุงเทพ</p>
+        <div class="language-switcher"></div>
+    </header>
+
+    <div class="container">
+        <div id="user-info" class="user-info" style="text-align: right; margin-bottom: 10px;"></div>
+         <nav>
+             <a href="admin.html" class="btn btn-secondary">จัดการคำขอ</a>
+             <a href="admin-report.html" class="btn">ดูรายงาน</a>
+        </nav>
+        <hr style="margin: 15px 0;">
+
+        <h2 data-translate="document_request_summary">สรุปภาพรวมคำขอเอกสาร</h2>
+        <div id="reportMessage" class="message"></div>
+
+        <div class="report-section">
+            <h3 data-translate="requests_by_status">จำนวนคำขอตามสถานะ</h3>
+            <div id="statusSummaryTableContainer">
+                </div>
+            </div>
+
+        <div class="report-section">
+            <h3 data-translate="requests_by_type">จำนวนคำขอตามประเภทเอกสาร</h3>
+            <div id="typeSummaryTableContainer">
+                </div>
+            </div>
+
+        </div>
+
+    <footer>
+         <p class="text-center">&copy; <span id="currentYearReport"></span> <span data-translate="university_name">มหาวิทยาลัยนอร์ทกรุงเทพ</span></p>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/admin-report.js"></script>
+    <script>
+        document.getElementById('currentYearReport').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
