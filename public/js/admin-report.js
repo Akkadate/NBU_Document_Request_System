@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function fetchReportData() {
         try {
-            const response = await fetch(`${APP_CONFIG.API_BASE_URL}/documents/admin/reports/summary`, {
+            const response = await fetch(`${APP_CONFIG.API_BASE_URL}/admin/reports/summary`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
             if (!response.ok) {
