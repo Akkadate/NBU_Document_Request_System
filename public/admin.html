@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Document Requests</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        /* Admin specific styles */
+        .admin-container { max-width: 1200px; }
+        table .actions select { padding: 5px; margin-right: 5px; }
+        table .actions button { padding: 5px 8px; font-size: 0.9em;}
+        .slip-link { color: blue; text-decoration: underline; cursor: pointer; }
+        .filter-bar { margin-bottom: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 5px;}
+        .filter-bar label { margin-right: 5px;}
+        .filter-bar input, .filter-bar select { margin-right: 15px; padding: 8px; border-radius: 3px; border: 1px solid #ccc;}
+    </style>
+</head>
+<body id="admin-requests-page">
+    <header>
+        <img src="assets/images/nbu_logo.png" alt="NBU Logo" class="logo">
+        <h1 data-translate="admin_page_title">หน้าจัดการคำขอเอกสาร (Admin)</h1>
+        <p data-translate="university_name">มหาวิทยาลัยนอร์ทกรุงเทพ</p>
+        <div class="language-switcher">
+            </div>
+    </header>
+
+    <div class="container admin-container">
+        <div id="user-info" class="user-info" style="text-align: right; margin-bottom: 10px;">
+            </div>
+        <nav>
+             <a href="admin.html" class="btn">จัดการคำขอ</a>
+             <a href="admin-report.html" class="btn btn-secondary">ดูรายงาน</a>
+        </nav>
+        <hr style="margin: 15px 0;">
+
+        <h2 data-translate="all_document_requests">รายการคำขอเอกสารทั้งหมด</h2>
+
+        <div class="filter-bar">
+             <label for="statusFilter" data-translate="filter_by_status">กรองตามสถานะ:</label>
+             <select id="statusFilter">
+                 <option value="" data-translate="all_statuses">ทุกสถานะ</option>
+                 <option value="pending_payment_confirmation" data-translate="status_pending_payment_confirmation">รอยืนยันการชำระเงิน</option>
+                 <option value="pending_verification" data-translate="status_pending_verification">รอตรวจสอบสลิป</option>
+                 <option value="processing" data-translate="status_processing">กำลังดำเนินการ</option>
+                 <option value="ready_for_pickup" data-translate="status_ready_for_pickup">พร้อมรับ</option>
+                 <option value="shipped" data-translate="status_shipped">จัดส่งแล้ว</option>
+                 <option value="completed" data-translate="status_completed">เสร็จสมบูรณ์</option>
+                 <option value="rejected_payment" data-translate="status_rejected_payment">การชำระเงินถูกปฏิเสธ</option>
+                 <option value="rejected" data-translate="status_rejected">คำขอถูกปฏิเสธ</option>
+             </select>
+             <label for="searchStudentId" data-translate="search_by_student_id">ค้นหารหัสนักศึกษา:</label>
+             <input type="text" id="searchStudentId" placeholder="65xxxxxxxx">
+             <button id="applyFilterBtn" class="btn btn-sm" data-translate="apply_filters">ใช้ตัวกรอง</button>
+        </div>
+
+        <div id="adminMessage" class="message" style="margin-bottom:10px;"></div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th data-translate="request_id_short">ID</th>
+                    <th data-translate="student_id">รหัสนักศึกษา</th>
+                    <th data-translate="student_name">ชื่อนักศึกษา</th>
+                    <th data-translate="document_name">เอกสาร</th>
+                    <th data-translate="request_date">วันที่ยื่น</th>
+                    <th data-translate="total_cost">ยอดชำระ</th>
+                    <th data-translate="payment_status">สถานะชำระเงิน</th>
+                    <th data-translate="document_status">สถานะเอกสาร</th>
+                    <th data-translate="payment_slip">สลิป</th>
+                    <th data-translate="actions">ดำเนินการ</th>
+                </tr>
+            </thead>
+            <tbody id="requestsTableBody">
+                </tbody>
+        </table>
+        <p id="noAdminRequestsMessage" style="display:none;" data-translate="no_requests_found_admin">ไม่พบรายการคำขอ</p>
+    </div>
+
+    <footer>
+        <p class="text-center">&copy; <span id="currentYear"></span> <span data-translate="university_name">มหาวิทยาลัยนอร์ทกรุงเทพ</span></p>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script> <script src="js/admin.js"></script>
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        // Ensure translations for admin page elements are in your locale files
+        // e.g., admin_page_title, all_document_requests, etc.
+    </script>
+</body>
+</html>
