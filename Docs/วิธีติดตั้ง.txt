@@ -1,3 +1,5 @@
+https://docs.google.com/document/d/1uAQVYgiLFQMJyUtu8aN64bu8qCJdXEmHclld2jQQvi8/edit?usp=sharing
+
 เพื่อให้คุณสามารถติดตั้ง ทดสอบ และให้ระบบทำงานได้ ผมขอสรุปคำสั่งที่ต้องใช้และจุดที่อาจจะต้องแก้ไขไฟล์ ดังนี้ครับ:
 
 ข้อควรจำก่อนเริ่ม:
