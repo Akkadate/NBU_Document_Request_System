@@ -104,6 +104,38 @@ const DocumentRequest = {
             console.error('Error updating payment status and slip:', error);
             throw error;
         }
+    },
+
+     async countByStatus() {
+        const query = `
+            SELECT document_status, COUNT(*) as count
+            FROM DocumentRequests
+            GROUP BY document_status;
+        `;
+        try {
+            const { rows } = await pool.query(query);
+            return rows; // [{ document_status: 'completed', count: '5' }, ...]
+        } catch (error) {
+            console.error('Error counting requests by status:', error);
+            throw error;
+        }
+    },
+
+    async countByType() {
+        // This requires DocumentTypes table to be joined correctly for type names
+        const query = `
+            SELECT dt.type_name_key, COUNT(dr.request_id) as count
+            FROM DocumentRequests dr
+            JOIN DocumentTypes dt ON dr.doc_type_id = dt.doc_type_id
+            GROUP BY dt.type_name_key;
+        `;
+        try {
+            const { rows } = await pool.query(query);
+            return rows; // [{ type_name_key: 'doc_transcript', count: '10' }, ...]
+        } catch (error) {
+            console.error('Error counting requests by type:', error);
+            throw error;
+        }
     }
 };
 
