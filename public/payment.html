@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="payment_page_title">ชำระเงิน</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body id="payment-page">
+    <header>
+        <img src="assets/images/nbu_logo.png" alt="NBU Logo" class="logo">
+        <h1 data-translate="system_name">ระบบขอเอกสารออนไลน์</h1>
+        <p data-translate="university_name">มหาวิทยาลัยนอร์ทกรุงเทพ</p>
+        <div class="language-switcher"></div>
+    </header>
+
+    <div class="container">
+        <div id="user-info" class="user-info"></div>
+        <h2 data-translate="payment_page_title">ชำระเงิน</h2>
+
+        <div id="paymentDetails">
+            <h3 data-translate="payment_instructions">กรุณาชำระเงินและแนบหลักฐาน</h3>
+            <p><strong data-translate="total_cost_label">ยอดชำระรวม:</strong> <span id="paymentTotalAmount">0.00</span> บาท</p>
+            <p><strong data-translate="bank_account_label">เลขที่บัญชี:</strong> <span id="bankAccountInfo"></span></p>
+            <p><strong data-translate="qr_code_payment">หรือสแกน QR Code:</strong></p>
+            <img id="qrCodeImage" src="" alt="QR Code" style="max-width: 200px; display: block; margin: 10px auto;">
+        </div>
+
+        <form id="paymentForm">
+            <div class="form-group">
+                <label for="paymentSlip" data-translate="upload_slip_label">แนบสลิปโอนเงิน</label>
+                <input type="file" id="paymentSlip" name="paymentSlip" accept="image/*,.pdf" required>
+            </div>
+            <button type="submit" class="btn" data-translate="submit_payment_button">ยืนยันการชำระเงิน</button>
+        </form>
+        <div id="paymentMessage" class="message" style="text-align:center; margin-top:10px;"></div>
+    </div>
+
+    <footer>
+        <p class="text-center">&copy; 2025 <span data-translate="university_name">มหาวิทยาลัยนอร์ทกรุงเทพ</span></p>
+    </footer>
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/payment.js"></script>
+</body>
+</html>
