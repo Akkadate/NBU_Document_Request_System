@@ -6,6 +6,8 @@ const pool = require('./config/db'); // To initialize pool and log connection
 const authRoutes = require('./routes/authRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 
+const path = require('path');
+
 const app = express();
 
 // Middleware
@@ -16,6 +18,9 @@ app.use(cors({
 }));
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
+
+// Serve static files from the 'uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Test DB Connection by trying to query
 pool.query('SELECT NOW()', (err, res) => {
@@ -29,6 +34,8 @@ pool.query('SELECT NOW()', (err, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
+
+
 
 // Simple test route
 app.get('/api/health', (req, res) => {
