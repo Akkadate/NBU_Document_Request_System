@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="register_page_title">ลงทะเบียน</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body id="register-page">
+    <header>
+        <img src="assets/images/nbu_logo.png" alt="NBU Logo" class="logo">
+        <h1 data-translate="system_name">ระบบขอเอกสารออนไลน์</h1>
+        <p data-translate="university_name">มหาวิทยาลัยนอร์ทกรุงเทพ</p>
+        <div class="language-switcher">
+             </div>
+    </header>
+    <div class="container">
+        <h2 data-translate="register_page_title">ลงทะเบียน</h2>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="regStudentId" data-translate="username_label">รหัสนักศึกษา</label>
+                <input type="text" id="regStudentId" name="studentId" required>
+            </div>
+            <div class="form-group">
+                <label for="regPassword" data-translate="password_label">รหัสผ่าน</label>
+                <input type="password" id="regPassword" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword" data-translate="confirm_password_label">ยืนยันรหัสผ่าน</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="fullName" data-translate="full_name_label">ชื่อ-นามสกุล</label>
+                <input type="text" id="fullName" name="fullName" required>
+            </div>
+            <div class="form-group">
+                <label for="email" data-translate="email_label">อีเมล</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="phone" data-translate="phone_label">เบอร์โทรศัพท์</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            <div class="form-group">
+                <label for="faculty" data-translate="faculty_label">คณะ</label>
+                <select id="faculty" name="faculty" required>
+                    <option value="" data-translate="select_faculty">เลือกคณะ...</option>
+                    </select>
+            </div>
+            <button type="submit" class="btn" data-translate="register_button">ลงทะเบียน</button>
+        </form>
+        <p class="mt-20 text-center">
+            <span data-translate="already_have_account">มีบัญชีแล้ว?</span> <a href="login.html" data-translate="login_button">เข้าสู่ระบบ</a>
+        </p>
+        <div id="registerMessage" class="message" style="text-align:center; margin-top:10px;"></div>
+    </div>
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
