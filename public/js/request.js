@@ -123,47 +123,66 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    requestForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        if (costSummaryDiv.style.display === 'none') {
-             alert(window.translations?.['calculate_cost_first'] || 'กรุณาคำนวณค่าบริการก่อน');
-            return;
+   // ... (ส่วน cost calculation, UI logic เหมือนเดิม) ...
+
+requestForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    if (costSummaryDiv.style.display === 'none') {
+        alert(window.translations?.['calculate_cost_first'] || 'กรุณาคำนวณค่าบริการก่อน');
+        return;
+    }
+    const authToken = localStorage.getItem('authToken');
+    if (!authToken) {
+        alert('Session expired or not logged in. Please log in again.');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const requestPayload = {
+        documentType: documentTypeSelect.value, // e.g., "transcript"
+        // documentTypeName: documentTypeSelect.options[documentTypeSelect.selectedIndex].text, // Backend can get this from doc_type_id
+        quantity: parseInt(quantityInput.value),
+        deliveryMethod: document.querySelector('input[name="deliveryMethod"]:checked').value,
+        pickupType: (document.querySelector('input[name="deliveryMethod"]:checked').value === 'self_pickup')
+                        ? document.querySelector('input[name="pickupType"]:checked').value
+                        : null,
+        postalAddress: (document.querySelector('input[name="deliveryMethod"]:checked').value === 'postal')
+                        ? postalAddressInput.value
+                        : null,
+        totalCost: parseFloat(totalCostSpan.textContent),
+        documentCost: parseFloat(documentCostSpan.textContent),
+        shippingCost: parseFloat(shippingCostSpan.textContent),
+        // Status will be set by backend
+    };
+
+    try {
+        const response = await fetch(`${APP_CONFIG.API_BASE_URL}/documents/request`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify(requestPayload)
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Failed to submit document request.');
         }
 
-        const formData = {
-            documentType: documentTypeSelect.value,
-            documentTypeName: documentTypeSelect.options[documentTypeSelect.selectedIndex].text,
-            quantity: parseInt(quantityInput.value),
-            deliveryMethod: document.querySelector('input[name="deliveryMethod"]:checked').value,
-            pickupType: (document.querySelector('input[name="deliveryMethod"]:checked').value === 'self_pickup') ? document.querySelector('input[name="pickupType"]:checked').value : null,
-            postalAddress: (document.querySelector('input[name="deliveryMethod"]:checked').value === 'postal') ? postalAddressInput.value : null,
-            totalCost: parseFloat(totalCostSpan.textContent),
-            documentCost: parseFloat(documentCostSpan.textContent),
-            shippingCost: parseFloat(shippingCostSpan.textContent),
-            status: 'pending_payment', // Initial status
-            requestDate: new Date().toISOString()
-        };
-
-        // SIMULATE saving request and redirecting to payment
-        // In a real app, send this to the backend, get a request ID, then proceed.
-        const requestId = `NBU-${Date.now()}`;
-        formData.id = requestId;
-
-        // Store this temporary request in localStorage to pass to payment page
-        localStorage.setItem('currentDocumentRequest', JSON.stringify(formData));
-
-        // Redirect to payment page
+        // Store the newly created request (from backend response) to pass to payment page
+        localStorage.setItem('currentDocumentRequest', JSON.stringify(data.request));
+        alert(data.message || 'Request submitted! Proceeding to payment.');
         window.location.href = 'payment.html';
-    });
 
-    // Initial state for delivery options
-    if (document.querySelector('input[name="deliveryMethod"]:checked').value === 'self_pickup') {
-        selfPickupOptionsDiv.style.display = 'block';
-        postalAddressSectionDiv.style.display = 'none';
-        postalAddressInput.required = false;
-    } else {
-        selfPickupOptionsDiv.style.display = 'none';
-        postalAddressSectionDiv.style.display = 'block';
-        postalAddressInput.required = true;
+    } catch (error) {
+        if (requestMessageDiv) {
+            requestMessageDiv.textContent = error.message;
+            requestMessageDiv.style.color = 'red';
+        }
+        console.error('Request submission error:', error);
+        if (error.message.toLowerCase().includes('token') || error.message.toLowerCase().includes('unauthorized')) {
+            window.location.href = 'login.html'; // Redirect if auth error
+        }
     }
 });
