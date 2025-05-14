@@ -1,31 +1,47 @@
+// ... (ส่วนอื่น ๆ เช่น language switcher, populate dropdowns เหมือนเดิม) ...
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Load APP_CONFIG (ensure config.js is loaded before this script)
-    if (typeof APP_CONFIG === 'undefined') {
-        console.error("APP_CONFIG is not loaded. Make sure config.js is included and loaded first.");
-        return;
-    }
+    // ... (โค้ดโหลด config, ภาษา) ...
 
-    const defaultLang = 'th';
-    let currentLang = localStorage.getItem('language') || defaultLang;
-    let translations = {};
+    // User info display / logout
+    const userInfoDiv = document.getElementById('user-info');
+    const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+    const authToken = localStorage.getItem('authToken');
 
-    async function fetchTranslations(lang) {
-        try {
-            const response = await fetch(`assets/locales/${lang}.json`);
-            if (!response.ok) {
-                throw new Error(`Could not load ${lang}.json: ${response.statusText}`);
-            }
-            translations = await response.json();
-            applyTranslations();
-        } catch (error) {
-            console.error("Error fetching translations:", error);
-            // Fallback to default language if current language fetch fails
-            if (lang !== defaultLang) {
-                fetchTranslations(defaultLang);
-                localStorage.setItem('language', defaultLang); // Update storage
-            }
+    if (loggedInUser && authToken && userInfoDiv) {
+        userInfoDiv.innerHTML = `
+            <span data-translate="welcome_user">ยินดีต้อนรับ, ${loggedInUser.fullName} (${loggedInUser.studentId})</span> |
+            <button id="logoutButton" class="btn btn-secondary btn-sm" data-translate="logout_button">ออกจากระบบ</button>
+        `;
+        // Translate after inserting
+        if (window.applyTranslations) window.applyTranslations(); // if applyTranslations is global
+
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            localStorage.removeItem('loggedInUser');
+            localStorage.removeItem('authToken');
+            // Potentially call a /api/auth/logout endpoint on backend if you implement server-side token invalidation
+            window.location.href = 'login.html';
+        });
+    } else if (document.body.id !== 'login-page' && document.body.id !== 'register-page' && (!loggedInUser || !authToken)) {
+        // If not on login/register page and not logged in (no token or user info), redirect to login
+        // Check if the current page requires authentication before redirecting
+        const authRequiredPages = ['dashboard-page', 'request-doc-page', 'payment-page', 'status-page'];
+        if (authRequiredPages.includes(document.body.id)) {
+            window.location.href = 'login.html';
         }
     }
+     // Ensure translations are applied if not already done by this point
+     if (window.fetchTranslations && !window.translationsLoaded) { // Add a flag to prevent multiple loads
+        const currentLang = localStorage.getItem('language') || 'th';
+        window.fetchTranslations(currentLang).then(() => { window.translationsLoaded = true; });
+    }
+});
+
+// Make sure applyTranslations can be called if needed after dynamic content update
+// Consider making fetchTranslations and applyTranslations globally accessible or part of a shared module
+// For simplicity, if they are in the global scope from main.js loading:
+// window.applyTranslations = applyTranslations;
+// window.fetchTranslations = fetchTranslations;
 
     function applyTranslations() {
         document.querySelectorAll('[data-translate]').forEach(element => {
