@@ -81,40 +81,55 @@ exports.getUserRequests = async (req, res) => {
 // --- Payment Related (Simplified - No actual file upload here) ---
 exports.submitPayment = async (req, res) => {
     const userId = req.user.id;
-    const { requestId } = req.params; // Get requestId from URL parameter
-    // In a real scenario with multer, req.file would contain slip info
-    // const paymentSlipFile = req.file;
-    const { paymentSlipFilename } = req.body; // For demo, assume filename is sent in body
+    const { requestId } = req.params;
+    const paymentSlipFile = req.file; // multer stores uploaded file info here
 
-    // if (!paymentSlipFile) {
-    //     return res.status(400).json({ message: 'Payment slip file is required.' });
-    // }
-    if (!paymentSlipFilename) {
-        return res.status(400).json({ message: 'Payment slip filename is required for demo.' });
+    if (!paymentSlipFile) {
+        return res.status(400).json({ message: 'Payment slip file is required.' });
     }
 
+    // Path to store in DB, relative to a base path or accessible URL if serving files
+    // For now, just store the filename or path relative to 'uploads'
+    const paymentSlipPath = `slips/${paymentSlipFile.filename}`;
+
     try {
-        // Verify the request belongs to the user (optional, but good practice)
-        // const request = await DocumentRequest.findByIdAndUser(requestId, userId);
+        // Optional: Verify the request belongs to the user and is in a payable state
+        // const request = await DocumentRequest.findByIdAndUserAndStatus(requestId, userId, 'pending_payment');
         // if (!request) {
-        //     return res.status(404).json({ message: 'Request not found or does not belong to user.' });
+        //     // If file was uploaded but request is not valid, you might want to delete the uploaded file
+        //     fs.unlinkSync(paymentSlipFile.path); // Requires const fs = require('fs');
+        //     return res.status(404).json({ message: 'Request not found, not payable, or does not belong to user.' });
         // }
 
         const updatedRequest = await DocumentRequest.updatePaymentStatusAndSlip(
             requestId,
             'pending_verification', // New payment status
-            // paymentSlipFile.path // Path where multer saved the file
-            `uploads/slips/${paymentSlipFilename}` // Simulated path
+            paymentSlipPath         // Actual file path/reference
         );
 
         if (!updatedRequest) {
+            // If DB update fails, consider deleting the uploaded file
+            // fs.unlinkSync(paymentSlipFile.path);
             return res.status(404).json({ message: 'Request not found for updating payment.' });
         }
 
         res.json({ message: 'Payment submitted successfully. Awaiting verification.', request: updatedRequest });
     } catch (err) {
         console.error('Error submitting payment:', err);
-        res.status(500).send('Server error');
+        // If an error occurs after file upload, you might want to delete the uploaded file
+        if (paymentSlipFile && paymentSlipFile.path) {
+            try {
+                const fs = require('fs'); // ensure fs is required at the top of the file
+                fs.unlinkSync(paymentSlipFile.path);
+                console.log('Rolled back uploaded file due to error:', paymentSlipFile.path);
+            } catch (unlinkErr) {
+                console.error('Error deleting uploaded file during error handling:', unlinkErr);
+            }
+        }
+        if (err.message.includes('Invalid file type')) { // From multer fileFilter
+             return res.status(400).json({ message: err.message });
+        }
+        res.status(500).send('Server error during payment submission');
     }
 };
 
