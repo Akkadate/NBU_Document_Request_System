@@ -1,0 +1,186 @@
+เพื่อให้คุณสามารถติดตั้ง ทดสอบ และให้ระบบทำงานได้ ผมขอสรุปคำสั่งที่ต้องใช้และจุดที่อาจจะต้องแก้ไขไฟล์ ดังนี้ครับ:
+
+ข้อควรจำก่อนเริ่ม:
+
+Backup: ตรวจสอบว่าคุณได้สำรองโค้ดทั้งหมดไว้แล้ว
+สิทธิ์การเข้าถึง (Permissions): ตรวจสอบว่า User ที่คุณใช้บน Server มีสิทธิ์ในการสร้างไฟล์, โฟลเดอร์, ติดตั้ง packages และรันโปรเซสต่างๆ
+Domain Name: ตรวจสอบว่า Domain Name ของคุณได้ชี้ไปยัง IP Address ของ Server เรียบร้อยแล้ว (อาจใช้เวลาในการ propagate DNS)
+I. การตั้งค่า Backend (บน Server ของคุณ)
+
+อัปโหลดไฟล์:
+
+นำไฟล์และโฟลเดอร์ทั้งหมดภายในไดเรกทอรี backend/ ของคุณอัปโหลดไปยังตำแหน่งที่ต้องการบน Server (เช่น /var/www/nbu-doc-backend หรือ ~/nbu-doc-backend).
+ติดตั้ง Node.js และ npm/yarn (ถ้ายังไม่มี):
+
+ตรวจสอบเวอร์ชัน: node -v และ npm -v
+หากยังไม่มี ให้ติดตั้งตามวิธีการสำหรับ OS ของ Server คุณ (เช่น Ubuntu, CentOS).
+ติดตั้ง PostgreSQL Client (ถ้าจำเป็น):
+
+เพื่อให้สามารถใช้คำสั่ง psql ในการจัดการ Database ได้จาก Server ที่รัน Backend (ถ้า Database อยู่บนเครื่องเดียวกัน หรือต้องการทดสอบการเชื่อมต่อ) ให้ติดตั้ง postgresql-client
+เข้าไปยังไดเรกทอรี Backend:
+
+Bash
+
+cd /path/to/your/backend_directory
+สร้างและแก้ไขไฟล์ .env:
+
+สร้างไฟล์ .env ในไดเรกทอรี backend/ (ถ้ายังไม่มี หรือต้องการปรับค่าสำหรับ Server จริง)
+จุดที่ต้องแก้ไข/ตรวจสอบให้ถูกต้อง 100%:
+Code snippet
+
+DB_HOST=remote.devapp.cc # หรือ IP/hostname ของ PostgreSQL Server จริงของคุณ
+DB_USER=postgres         # User ของ PostgreSQL
+DB_PASSWORD=Tct85329$    # รหัสผ่านของ User PostgreSQL
+DB_NAME=nbu_doc_system   # ชื่อ Database ที่คุณสร้างไว้
+DB_PORT=5432             # Port ของ PostgreSQL
+
+NODE_ENV=production      # **แนะนำให้ตั้งเป็น production สำหรับ Server จริง**
+PORT=3000                # Port ที่ Backend API จะรัน (เช่น 3000, 8080) ตรวจสอบว่า Port นี้ไม่ถูกใช้งานโดยโปรแกรมอื่น
+
+JWT_SECRET=YOUR_ACTUAL_VERY_STRONG_AND_UNIQUE_SECRET_KEY_FOR_PRODUCTION # **สำคัญมาก: เปลี่ยนเป็น Secret Key ที่แข็งแรงและไม่ซ้ำใคร**
+JWT_EXPIRES_IN=1d        # หรือตามความเหมาะสม
+
+# เพิ่ม DB_SSL=true ถ้า PostgreSQL ของคุณต้องการ SSL (remote.devapp.cc อาจไม่ต้องการ)
+# DB_SSL=false
+ติดตั้ง Dependencies:
+
+Bash
+
+npm install --production # ติดตั้งเฉพาะ production dependencies
+# หรือถ้าใช้ yarn:
+# yarn install --production
+สร้างไดเรกทอรีสำหรับ Uploads:
+
+Bash
+
+mkdir -p uploads/slips
+ตรวจสอบสิทธิ์ (Permissions) ของโฟลเดอร์ uploads/ และ uploads/slips/ ให้แน่ใจว่า Node.js process สามารถเขียนไฟล์ลงไปได้
+การตั้งค่า Database (ถ้ายังไม่ได้ทำบน remote.devapp.cc):
+
+เชื่อมต่อ PostgreSQL Server ของคุณ (เช่น ผ่าน psql หรือ pgAdmin)
+รัน SQL script ที่ผมให้ไว้ก่อนหน้านี้เพื่อสร้างตาราง Users, Faculties (ถ้าใช้), DocumentTypes, DocumentRequests และกำหนด Foreign Keys ให้ถูกต้อง
+ตรวจสอบว่า User ที่ระบุใน .env (เช่น postgres) มีสิทธิ์เพียงพอ (SELECT, INSERT, UPDATE, DELETE) บนตารางเหล่านี้
+การรัน Backend Application:
+
+สำหรับการทดสอบเบื้องต้น:
+Bash
+
+npm start
+# หรือ (ถ้า server.js อยู่ใน root ของ backend และ package.json มี "start": "node server.js")
+# node server.js
+สำหรับการใช้งานจริง (Production) - แนะนำให้ใช้ Process Manager เช่น PM2:
+ติดตั้ง PM2 (ถ้ายังไม่มี): npm install -g pm2
+เริ่มการทำงานของ Backend ด้วย PM2:
+Bash
+
+pm2 start server.js --name "nbu-doc-backend"
+คำสั่ง PM2 ที่มีประโยชน์:
+pm2 list (ดูรายการ process)
+pm2 logs nbu-doc-backend (ดู log)
+pm2 restart nbu-doc-backend
+pm2 stop nbu-doc-backend
+pm2 startup (เพื่อให้ PM2 เริ่มทำงานอัตโนมัติเมื่อ Server reboot)
+pm2 save (บันทึกรายการ process ปัจจุบัน)
+II. การตั้งค่า Frontend (บน Server ของคุณ)
+
+อัปโหลดไฟล์:
+
+นำไฟล์และโฟลเดอร์ทั้งหมดภายในไดเรกทอรี public/ ของคุณอัปโหลดไปยังตำแหน่งที่ Web Server (เช่น Nginx, Apache) จะใช้เป็น Document Root สำหรับ Domain Name ของคุณ (เช่น /var/www/yourdomain.com/html หรือ ~/public_html/nbu-doc-frontend).
+แก้ไขไฟล์ Config ของ Frontend (public/js/config.js):
+
+จุดที่สำคัญที่สุดที่ต้องแก้ไข:
+JavaScript
+
+// public/js/config.js
+const APP_CONFIG = {
+    // ... (ค่าอื่นๆ)
+    API_BASE_URL: "https://yourdomain.com/api", // **สำคัญมาก: เปลี่ยนเป็น URL จริงของ Backend API ของคุณ**
+                                               // ตัวอย่าง:
+                                               // - ถ้า Backend รันบน Server เดียวกันที่ Port 3000 และไม่มี Reverse Proxy: "http://<your_server_ip>:3000/api"
+                                               // - ถ้าใช้ Reverse Proxy ผ่าน Domain เดียวกัน: "https://yourdomain.com/api"
+                                               // - ถ้า API อยู่บน Subdomain: "https://api.yourdomain.com/api"
+    // ... (ค่าอื่นๆ เช่น UNIVERSITY_NAME, FACULTIES, DOCUMENT_TYPES อาจจะยังคงเดิม หรือปรับตามต้องการ)
+    PAYMENT_INFO: {
+        BANK_ACCOUNT: "123-4-56789-0 ธนาคารตัวอย่าง สาขานอร์ทกรุงเทพ", // **เปลี่ยนเป็นเลขบัญชีจริง**
+        QR_CODE_IMAGE_URL: "assets/images/your_actual_qr_code.png" // **เปลี่ยนเป็น Path ของ QR Code จริงของคุณ (ถ้ามี)**
+    }
+};
+window.APP_CONFIG = APP_CONFIG;
+QR Code: หากคุณมี QR Code สำหรับการชำระเงินจริง ให้นำไฟล์รูปภาพไปไว้ใน public/assets/images/ แล้วอัปเดต Path ใน APP_CONFIG
+การตั้งค่า Web Server (เช่น Nginx หรือ Apache):
+
+Serve Static Files: ตั้งค่า Web Server ของคุณให้ Serve ไฟล์จากไดเรกทอรีที่คุณอัปโหลด Frontend files ไป (เช่น /var/www/yourdomain.com/html)
+Domain Name: ผูก Domain Name ของคุณกับ Web Server นี้
+(แนะนำ) ตั้งค่า Reverse Proxy สำหรับ Backend API:
+เพื่อให้ Frontend และ Backend ดูเหมือนอยู่บน Domain เดียวกัน (เช่น yourdomain.com สำหรับ Frontend และ yourdomain.com/api สำหรับ Backend) ซึ่งช่วยลดปัญหา CORS และทำให้ URL จัดการง่ายขึ้น
+ตัวอย่าง Nginx Reverse Proxy (เบื้องต้น): ในไฟล์ config ของ site Nginx ของคุณ (เช่น /etc/nginx/sites-available/yourdomain.com):
+Nginx
+
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com; # Domain ของคุณ
+
+    root /var/www/yourdomain.com/html; # Path ไปยัง Frontend files
+    index index.html login.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ { # Path ที่จะ proxy ไปยัง Backend
+        proxy_pass http://localhost:3000/api/; # URL ของ Backend API ที่รันบน Server (Port 3000)
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # หากคุณต้องการ Serve ไฟล์ที่อัปโหลด (slips) โดยตรงจาก Backend ผ่าน Nginx
+    # (สมมติว่า backend/uploads map ไปที่ /var/www/nbu-doc-backend/uploads)
+    # location /uploads/ {
+    #     alias /var/www/nbu-doc-backend/uploads/; # Path จริงไปยังโฟลเดอร์ uploads ของ Backend
+    #     try_files $uri =404;
+    #     expires 1d; # Cache control
+    # }
+
+    # ... (การตั้งค่า SSL/HTTPS ควรจะมีด้วยสำหรับ Production) ...
+}
+หากตั้งค่า Reverse Proxy สำเร็จ API_BASE_URL ใน public/js/config.js สามารถตั้งเป็น /api ได้เลย (เช่น API_BASE_URL: "/api")
+การตั้งค่า CORS ใน Backend (backend/server.js):
+
+ถ้าคุณไม่ได้ใช้ Reverse Proxy หรือ Frontend และ Backend อยู่คนละ Domain/Port คุณต้องแก้ไข origin ใน app.use(cors({ ... })); ให้ตรงกับ Domain จริงของ Frontend ของคุณ:
+JavaScript
+
+// backend/server.js
+app.use(cors({
+    origin: 'https://yourdomain.com', // **เปลี่ยนเป็น Domain จริงของ Frontend**
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}));
+III. ขั้นตอนการทดสอบระบบ (เบื้องต้น)
+
+ตรวจสอบ Backend:
+
+ดู Log ของ PM2 (pm2 logs nbu-doc-backend) เพื่อให้แน่ใจว่า Backend เริ่มทำงานได้สำเร็จ และเชื่อมต่อ Database ได้
+ลองเข้า URL ของ Backend API health check โดยตรงผ่าน Browser หรือ curl (เช่น https://yourdomain.com/api/health หรือ http://<your_server_ip>:3000/api/health)
+ตรวจสอบ Frontend:
+
+เปิด Browser แล้วไปที่ Domain ของคุณ (เช่น https://yourdomain.com) ควรจะเห็นหน้า Login หรือ Index
+เปิด Developer Console (F12) ใน Browser เพื่อดู Error ที่อาจเกิดขึ้น (ทั้งใน Console และ Network tab)
+ทดสอบฟังก์ชันหลัก:
+
+ลงทะเบียน: สร้างบัญชีผู้ใช้ใหม่ ตรวจสอบข้อมูลใน Database
+ล็อกอิน: ล็อกอินด้วยบัญชีที่สร้างขึ้น
+ขอเอกสาร: ยื่นคำขอเอกสารใหม่
+ชำระเงิน: ทดลองอัปโหลดไฟล์สลิป (ใช้ไฟล์รูปภาพหรือ PDF ขนาดเล็ก) ตรวจสอบว่าไฟล์ถูกบันทึกในโฟลเดอร์ backend/uploads/slips/ บน Server หรือไม่ และสถานะใน Database เปลี่ยนไปหรือไม่
+ตรวจสอบสถานะ (นักศึกษา): ดูสถานะคำขอของตนเอง
+เข้าหน้า Admin (/admin.html): (หลังจากล็อกอินด้วยบัญชีใดก็ได้ เนื่องจากยังไม่มีการแยก Role ชัดเจน)
+จัดการคำขอ (Admin): ดูรายการคำขอทั้งหมด ลองเปลี่ยนสถานะเอกสาร
+ดูสลิป (Admin): ทดลองคลิกดูสลิป (ถ้าคุณได้ตั้งค่า Nginx หรือ Express static serving สำหรับโฟลเดอร์ uploads อย่างถูกต้อง)
+ดูรายงาน (Admin) (/admin-report.html): ตรวจสอบว่าข้อมูลสรุปเบื้องต้นแสดงผลหรือไม่
+สลับภาษา: ทดสอบการเปลี่ยนภาษาในหน้าต่างๆ
+นี่เป็นขั้นตอนโดยรวมครับ แต่ละ Server และการตั้งค่า Domain/DNS อาจมีรายละเอียดปลีกย่อยที่แตกต่างกัน หากคุณพบปัญหาเฉพาะจุดใด สามารถสอบถามเพิ่มเติมได้ครับ ขอให้การติดตั้งเป็นไปด้วยดีครับ!
