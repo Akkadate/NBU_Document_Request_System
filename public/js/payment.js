@@ -26,13 +26,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ... (ส่วน UI แสดงข้อมูลเหมือนเดิม) ...
 
+// ... (ส่วน UI แสดงข้อมูลเหมือนเดิม) ...
+
 if (paymentForm) {
     paymentForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        const paymentSlipFile = document.getElementById('paymentSlip').files[0];
+        const paymentSlipFileInput = document.getElementById('paymentSlip');
+        const paymentSlipFile = paymentSlipFileInput.files[0];
         const authToken = localStorage.getItem('authToken');
 
-        if (!currentRequestData || !currentRequestData.request_id) {
+        if (!currentRequestData || !currentRequestData.request_id) { // Ensure currentRequestData is from localStorage and has request_id
             showMessage(paymentMessageDiv, 'No active request for payment.', true);
             return;
         }
@@ -46,36 +49,29 @@ if (paymentForm) {
             return;
         }
 
-        // SIMULATED FILE UPLOAD: In a real app, you'd use FormData to upload the file.
-        // For this demo, we'll just send the filename. The backend is also simplified.
-        const paymentPayload = {
-            paymentSlipFilename: paymentSlipFile.name // Send filename as part of JSON body for demo
-        };
+        const formData = new FormData();
+        formData.append('paymentSlipFile', paymentSlipFile); // Key 'paymentSlipFile' must match multer's .single() argument
+
+        // You can append other data if your backend expects it with multipart/form-data
+        // formData.append('someOtherField', 'someValue');
 
         try {
-            // const formData = new FormData();
-            // formData.append('paymentSlip', paymentSlipFile);
-            // // If sending other data with FormData:
-            // // formData.append('notes', 'Some payment notes');
-
             const response = await fetch(`${APP_CONFIG.API_BASE_URL}/documents/${currentRequestData.request_id}/payment`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json', // For demo, sending JSON
-                    // 'Content-Type': 'multipart/form-data', // For actual file upload with FormData, DONT set this manually, fetch does it.
+                    // 'Content-Type': 'multipart/form-data' // DON'T set Content-Type manually when using FormData with fetch. The browser will do it correctly.
                     'Authorization': `Bearer ${authToken}`
                 },
-                body: JSON.stringify(paymentPayload) // For demo
-                // body: formData // For actual file upload
+                body: formData
             });
 
-            const data = await response.json();
+            const data = await response.json(); // Try to parse JSON, even if it's an error response
             if (!response.ok) {
-                throw new Error(data.message || 'Payment submission failed.');
+                throw new Error(data.message || `Payment submission failed. Status: ${response.status}`);
             }
 
             showMessage(paymentMessageDiv, data.message || 'Payment submitted successfully!', false);
-            localStorage.removeItem('currentDocumentRequest'); // Clear temp request
+            localStorage.removeItem('currentDocumentRequest');
 
             setTimeout(() => {
                 window.location.href = 'status.html';
@@ -85,11 +81,12 @@ if (paymentForm) {
             showMessage(paymentMessageDiv, error.message, true);
             console.error("Payment submission error:", error);
             if (error.message.toLowerCase().includes('token') || error.message.toLowerCase().includes('unauthorized')) {
-                window.location.href = 'login.html'; // Redirect if auth error
+                window.location.href = 'login.html';
             }
         }
     });
-   }
+}
+// ... (showMessage function) ...
     function showMessage(div, text, isError = true) { // Helper for this page
         if (div) {
             div.textContent = text;
