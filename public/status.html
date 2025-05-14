@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="status_page_title">ตรวจสอบสถานะ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body id="status-page">
+    <header>
+        <img src="assets/images/nbu_logo.png" alt="NBU Logo" class="logo">
+        <h1 data-translate="system_name">ระบบขอเอกสารออนไลน์</h1>
+        <p data-translate="university_name">มหาวิทยาลัยนอร์ทกรุงเทพ</p>
+        <div class="language-switcher"></div>
+    </header>
+
+    <div class="container">
+        <div id="user-info" class="user-info"></div>
+        <h2 data-translate="status_page_title">ตรวจสอบสถานะเอกสาร</h2>
+
+        <div id="statusListContainer">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-translate="request_id">เลขที่คำขอ</th>
+                        <th data-translate="document_name">ชื่อเอกสาร</th>
+                        <th data-translate="date_requested">วันที่ยื่นคำขอ</th>
+                        <th data-translate="status">สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody id="statusTableBody">
+                    </tbody>
+            </table>
+            <p id="noRequestsMessage" style="display:none;" data-translate="no_requests_found">ไม่พบรายการคำขอ</p>
+        </div>
+        <div class="mt-20">
+            <a href="index.html" class="btn btn-secondary" data-translate="back_to_home">กลับหน้าหลัก</a>
+        </div>
+    </div>
+
+    <footer>
+        <p class="text-center">&copy; 2025 <span data-translate="university_name">มหาวิทยาลัยนอร์ทกรุงเทพ</span></p>
+    </footer>
+    <script src="js/config.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/status.js"></script>
+</body>
+</html>
