@@ -1,0 +1,39 @@
+เพื่อให้เห็นภาพรวมอีกครั้ง ไฟล์หลักๆ ที่คุณมีตอนนี้ประกอบด้วย:
+
+Frontend (public/ directory):
+
+สำหรับนักศึกษา: index.html (Dashboard), login.html, register.html, request-document.html, payment.html (พร้อมการอัปโหลดไฟล์จริง), status.html.
+สำหรับเจ้าหน้าที่ (Admin): admin.html (จัดการคำขอ), admin-report.html (ดูรายงานสรุปเบื้องต้น)
+JavaScript (js/): main.js (ส่วนกลาง, สลับภาษา), config.js, auth.js, request.js, payment.js, status.js, admin.js, admin-report.js.
+CSS (css/): style.css, responsive.css.
+Assets (assets/): locales/ (ไฟล์ภาษา 3 ภาษา), images/ (โลโก้, QR code placeholder).
+Backend (backend/ directory):
+
+server.js (ไฟล์หลักในการรันเซิร์ฟเวอร์, การตั้งค่า middleware, static file serving สำหรับ uploads).
+config/ (db.js สำหรับเชื่อมต่อ PostgreSQL, jwt.config.js).
+controllers/:
+authController.js (จัดการ login, register).
+documentController.js (จัดการคำขอเอกสารของนักศึกษา, การจ่ายเงิน).
+adminController.js (จัดการคำขอโดย Admin, ดึงข้อมูลสำหรับ Report).
+middleware/ (authMiddleware.js สำหรับตรวจสอบ token).
+models/ (User.js, DocumentRequest.js พร้อมฟังก์ชัน query ที่รองรับทั้งส่วนของนักศึกษาและ Admin).
+routes/:
+authRoutes.js.
+documentRoutes.js (สำหรับนักศึกษา).
+adminRoutes.js (สำหรับ Admin).
+uploads/slips/ (คุณต้องสร้างไดเรกทอรีนี้เอง เพื่อให้ multer บันทึกไฟล์ได้).
+.env (ตัวอย่างไฟล์ Environment Variables).
+package.json (รวม dependencies เช่น express, pg, jsonwebtoken, bcryptjs, multer).
+Database:
+
+SQL Schema ที่ได้ให้ไว้ก่อนหน้านี้ สำหรับสร้างตารางใน PostgreSQL.
+ดังนั้น สำหรับการนำไฟล์เหล่านี้ไป "ใส่ใน Server และใช้งาน" ในฐานะที่เป็นระบบตัวอย่างเพื่อทดสอบการทำงาน หรือเป็นจุดเริ่มต้นในการพัฒนาต่อยอด: ไฟล์เหล่านี้มีความครบถ้วนตามฟังก์ชันที่คุณต้องการแล้วครับ
+
+ย้ำอีกครั้งถึงขั้นตอนสำคัญหากคุณจะนำไปใช้งาน:
+
+ตั้งค่า Server Environment: ติดตั้ง Node.js, PostgreSQL, Web server (ถ้าแยก Frontend).
+Deploy โค้ด: อัปโหลดไฟล์ Backend และ Frontend ไปยัง Server.
+Configuration: สร้างและตั้งค่าไฟล์ .env ใน Backend ให้ถูกต้อง, สร้างไดเรกทอรี backend/uploads/slips/ และกำหนด Permissions ให้เหมาะสม.
+Database Setup: สร้าง Database และ Tables ตาม Schema ที่ให้ไว้.
+Testing: ทดสอบทุกส่วนของระบบอย่างละเอียด.
+Production Hardening: หากจะใช้งานจริง ต้องมีการปรับปรุงด้านความปลอดภัย, การจัดการ Error, Logging, Performance, และ UX/UI เพิ่มเติมอีกมาก.
