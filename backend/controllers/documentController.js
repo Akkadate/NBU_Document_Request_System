@@ -167,3 +167,27 @@ exports.updateRequestStatusAdmin = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+
+// ... (at the end of documentController.js)
+exports.getReportSummary = async (req, res) => {
+    // Add role check for admin if (req.user.role !== 'admin') ...
+    try {
+        // Example: Count requests by status
+        const statusCounts = await DocumentRequest.countByStatus();
+        // Example: Count requests by document type
+        const typeCounts = await DocumentRequest.countByType();
+        // Example: Count requests over time (e.g., last 7 days) - more complex query
+
+        res.json({
+            message: "Report summary fetched successfully.",
+            summary: {
+                statusCounts,
+                typeCounts,
+                // otherReportData
+            }
+        });
+    } catch (err) {
+        console.error('Error fetching report summary:', err);
+        res.status(500).send('Server error while fetching report summary');
+    }
+};
