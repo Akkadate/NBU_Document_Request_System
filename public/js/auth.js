@@ -4,36 +4,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginMessageDiv = document.getElementById('loginMessage');
     const registerMessageDiv = document.getElementById('registerMessage');
 
+    // Helper to display messages
+    function showMessage(div, text, isError = true) {
+        if (div) {
+            div.textContent = text;
+            div.style.color = isError ? 'red' : 'green';
+        }
+    }
+
     if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
+        loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const studentId = this.studentId.value;
             const password = this.password.value;
 
-            // SIMULATE API CALL for login
-            // In a real app, this would be an API call to the backend.
-            // For now, we check against users stored in localStorage.
-            const users = JSON.parse(localStorage.getItem('users')) || [];
-            const user = users.find(u => u.studentId === studentId && u.password === password); // Plain text password for demo ONLY
+            try {
+                const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ studentId, password })
+                });
+                const data = await response.json();
 
-            if (user) {
-                localStorage.setItem('loggedInUser', JSON.stringify(user)); // Simulate session
-                if (loginMessageDiv) loginMessageDiv.textContent = '';
-                window.location.href = 'index.html';
-            } else {
-                if (loginMessageDiv) {
-                     // Get translated message
-                    const key = 'login_failed'; // Add this key to your locale files
-                    const msg = window.translations && window.translations[key] ? window.translations[key] : 'รหัสนักศึกษาหรือรหัสผ่านไม่ถูกต้อง';
-                    loginMessageDiv.textContent = msg;
-                    loginMessageDiv.style.color = 'red';
+                if (!response.ok) {
+                    throw new Error(data.message || 'Login failed');
                 }
+
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('loggedInUser', JSON.stringify(data.user)); // Store user details
+                showMessage(loginMessageDiv, 'Login successful! Redirecting...', false);
+                window.location.href = 'index.html';
+
+            } catch (error) {
+                showMessage(loginMessageDiv, error.message);
+                console.error('Login error:', error);
             }
         });
     }
 
     if (registerForm) {
-        registerForm.addEventListener('submit', function(e) {
+        registerForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const studentId = this.studentId.value;
             const password = this.password.value;
@@ -41,42 +51,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const fullName = this.fullName.value;
             const email = this.email.value;
             const phone = this.phone.value;
-            const faculty = this.faculty.value;
+            const faculty = this.faculty.value; // This is the ID like "eng", "sci"
 
             if (password !== confirmPassword) {
-                if (registerMessageDiv){
-                    const key = 'password_mismatch'; // Add this key to your locale files
-                    const msg = window.translations && window.translations[key] ? window.translations[key] : 'รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน';
-                    registerMessageDiv.textContent = msg;
-                    registerMessageDiv.style.color = 'red';
+                showMessage(registerMessageDiv, window.translations?.['password_mismatch'] || 'Passwords do not match.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${APP_CONFIG.API_BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ studentId, password, fullName, email, phone, faculty })
+                });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Registration failed');
                 }
-                return;
-            }
+                showMessage(registerMessageDiv, data.message || 'Registration successful! Please log in.', false);
+                setTimeout(() => { window.location.href = 'login.html'; }, 2000);
 
-            // SIMULATE API CALL for registration
-            let users = JSON.parse(localStorage.getItem('users')) || [];
-            if (users.find(u => u.studentId === studentId)) {
-                 if (registerMessageDiv){
-                    const key = 'student_id_exists'; // Add this key to your locale files
-                    const msg = window.translations && window.translations[key] ? window.translations[key] : 'รหัสนักศึกษานี้มีในระบบแล้ว';
-                    registerMessageDiv.textContent = msg;
-                    registerMessageDiv.style.color = 'red';
-                 }
-                return;
+            } catch (error) {
+                showMessage(registerMessageDiv, error.message);
+                console.error('Registration error:', error);
             }
-
-            const newUser = { studentId, password, fullName, email, phone, faculty }; // Store password in plain text for demo ONLY. NEVER DO THIS IN PRODUCTION.
-            users.push(newUser);
-            localStorage.setItem('users', JSON.stringify(users));
-
-            if (registerMessageDiv){
-                const key = 'registration_successful'; // Add this key to your locale files
-                const msg = window.translations && window.translations[key] ? window.translations[key] : 'ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบ';
-                registerMessageDiv.textContent = msg;
-                registerMessageDiv.style.color = 'green';
-            }
-            // Optionally redirect to login page after a short delay
-            setTimeout(() => { window.location.href = 'login.html'; }, 2000);
         });
     }
 });
