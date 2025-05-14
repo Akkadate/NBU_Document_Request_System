@@ -1,58 +1,49 @@
-require('dotenv').config({ path: './.env' }); // Ensure this path is correct relative to server.js
+require('dotenv').config(); // Loads .env file variables into process.env
 const express = require('express');
 const cors = require('cors');
-const { Pool } = require('pg'); // PostgreSQL client
+const pool = require('./config/db'); // To initialize pool and log connection
+
+const authRoutes = require('./routes/authRoutes');
+const documentRoutes = require('./routes/documentRoutes');
 
 const app = express();
 
 // Middleware
-app.use(cors()); // Enable CORS for all routes (configure appropriately for production)
+app.use(cors({
+    origin: 'http://localhost:5500', // Or your frontend origin e.g. http://127.0.0.1:5500 for Live Server
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true // If you need to send cookies or authorization headers
+}));
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 
-// Database Connection Pool (example from config/db.js)
-/*
-// backend/config/db.js
-const { Pool } = require('pg');
-const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-});
-module.exports = pool;
-*/
-// const pool = require('./config/db'); // Assuming db.js is set up
-
-// Test DB Connection (Optional)
-// pool.query('SELECT NOW()', (err, res) => {
-//   if (err) {
-//     console.error('Error connecting to the database', err.stack);
-//   } else {
-//     console.log('Successfully connected to the database. Server time:', res.rows[0].now);
-//   }
-// });
-
-
-// --- Routes ---
-// Example: app.use('/api/auth', require('./routes/authRoutes'));
-// app.use('/api/documents', require('./routes/documentRoutes'));
-// app.use('/api/admin', require('./routes/adminRoutes'));
-
-app.get('/api/test', (req, res) => {
-    res.json({ message: 'Backend API is working!' });
+// Test DB Connection by trying to query
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) {
+    console.error('!!! Database Connection Failed !!!', err.stack);
+  } else {
+    console.log('PostgreSQL connected. Server time:', res.rows[0].now);
+  }
 });
 
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/documents', documentRoutes);
 
-// --- Error Handling Middleware (Basic) ---
+// Simple test route
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'UP', message: 'Backend API is healthy!', timestamp: new Date().toISOString() });
+});
+
+// Global Error Handler (very basic)
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
+    console.error("Unhandled error:", err.stack);
+    res.status(500).json({ message: 'An unexpected server error occurred.' });
 });
+
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`DB Host: ${process.env.DB_HOST}`); // Check if .env is loaded
+    console.log(`Backend server is running on http://localhost:${PORT}`);
+    console.log(`Frontend expected at http://localhost:5500 (or your dev server port)`);
 });
