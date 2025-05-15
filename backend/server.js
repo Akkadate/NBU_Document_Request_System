@@ -12,11 +12,11 @@ const adminRoutes = require('./routes/adminRoutes'); // <--- เพิ่มบ�
 const app = express();
 
 // Middleware
-app.use(cors({
-    origin: 'http://localhost:5500', // Or your frontend origin
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
-}));
+// app.use(cors({
+//    origin: 'http://localhost:5500', // Or your frontend origin
+//    methods: ["GET", "POST", "PUT", "DELETE"],
+//    credentials: true
+//    }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -47,7 +47,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'An unexpected server error occurred.' });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3200;
 app.listen(PORT, () => {
     console.log(`Backend server is running on http://localhost:${PORT}`);
 });
