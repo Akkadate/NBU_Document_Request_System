@@ -4,7 +4,7 @@ const APP_CONFIG = {
     UNIVERSITY_NAME_TH: "มหาวิทยาลัยนอร์ทกรุงเทพ",
     UNIVERSITY_NAME_EN: "North Bangkok University",
     UNIVERSITY_NAME_ZH: "北曼谷大学",
-    API_BASE_URL: "http://localhost:3200/api", // ตัวอย่าง URL ของ Backend API
+    API_BASE_URL: "http://localhost/api", // ตัวอย่าง URL ของ Backend API - Reverse proxy -> 3200
     FACULTIES: [
         { id: "eng", name_th: "คณะวิศวกรรมศาสตร์", name_en: "Faculty of Engineering", name_zh: "工程学院" },
         { id: "sci", name_th: "คณะวิทยาศาสตร์", name_en: "Faculty of Science", name_zh: "理学院" },
